@@ -9,6 +9,7 @@ import vn.theonestudio.surf.dto.response.TeamResponse;
 import vn.theonestudio.surf.model.TeamModel;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,9 +19,7 @@ public class TeamRepository {
 
     TeamDataSource teamDataSource;
 
-    FixVersionRepository fixVersionRepository;
     UserRepository userRepository;
-    TeamRepository teamRepository;
 
     // Utility methods
     public TeamResponse parseResponse(UUID teamId) {
@@ -32,6 +31,7 @@ public class TeamRepository {
         if(teamModel == null) return null;
 
         String rawCurrentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(rawCurrentUserId.equals("anonymousUser")) rawCurrentUserId = UUID.randomUUID().toString();
 
         return TeamResponse.builder()
                 .id(teamModel.getId())
@@ -39,6 +39,26 @@ public class TeamRepository {
                 .createdAt(Instant.now())
                 .createdBy(userRepository.parseResponse(UUID.fromString(rawCurrentUserId)))
                 .build();
+    }
+
+    // Action methods
+    public TeamResponse createTeam(String teamName) {
+        String rawCurrentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(rawCurrentUserId.equals("anonymousUser")) rawCurrentUserId = UUID.randomUUID().toString();
+
+        TeamModel team = TeamModel.builder()
+                .id(UUID.randomUUID())
+                .teamName(teamName)
+                .createdAt(Instant.now())
+                .createdBy(UUID.fromString(rawCurrentUserId))
+                .build();
+        teamDataSource.save(team);
+
+        return parseResponse(team);
+    }
+
+    public List<TeamResponse> getAllTeams() {
+        return teamDataSource.findAll().stream().map(this::parseResponse).toList();
     }
 
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import vn.theonestudio.surf.datasource.FixVersionDataSource;
 import vn.theonestudio.surf.dto.request.CreateFixVersionRequest;
+import vn.theonestudio.surf.dto.request.UpdateFixVersionRequest;
 import vn.theonestudio.surf.dto.response.ApproverResponse;
 import vn.theonestudio.surf.dto.response.FixVersionResponse;
 import vn.theonestudio.surf.enumeration.ApprovalStatus;
@@ -22,6 +23,7 @@ public class FixVersionRepository {
 
     // Utility methods
     public FixVersionResponse parseResponse(UUID fixVersionId) {
+        if(fixVersionId == null) return null;
         Optional<FixVersionModel> fixVersionOpt = fixVersionDataSource.findById(fixVersionId);
         return parseResponse(fixVersionOpt.orElse(null));
     }
@@ -66,6 +68,49 @@ public class FixVersionRepository {
                                 .toList()
                 )
                 .build();
+
+        fixVersionDataSource.save(fixVersion);
+
+        return parseResponse(fixVersion);
+    }
+
+    public FixVersionResponse updateFixVersion(UUID fixVersionId, UpdateFixVersionRequest request) {
+        Optional<FixVersionModel> fixVersionOpt = fixVersionDataSource.findById(fixVersionId);
+        if(fixVersionOpt.isEmpty()) return null;
+
+        FixVersionModel fixVersion = fixVersionOpt.get();
+
+        if(request.getVersionName() != null) {
+            fixVersion.setVersionName(request.getVersionName());
+        }
+
+        if(request.getReleaseDate() != null) {
+            fixVersion.setReleaseDate(request.getReleaseDate());
+        }
+
+        if(request.getStartDate() != null) {
+            fixVersion.setStartDate(request.getStartDate());
+        }
+
+        if(request.getGoal() != null) {
+            fixVersion.setGoal(request.getGoal());
+        }
+
+        if(request.getStatus() != null) {
+            fixVersion.setStatus(request.getStatus());
+        }
+
+        if(request.getApprovers() != null) {
+            fixVersion.setApprovers(
+                    request.getApprovers()
+                            .stream()
+                            .map(approver -> FixVersionModel.Approver.builder()
+                                    .userId(approver.getId())
+                                    .approvalStatus(approver.getApprovalStatus())
+                                    .build())
+                            .toList()
+            );
+        }
 
         fixVersionDataSource.save(fixVersion);
 

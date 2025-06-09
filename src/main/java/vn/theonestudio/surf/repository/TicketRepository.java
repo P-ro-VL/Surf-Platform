@@ -12,10 +12,7 @@ import vn.theonestudio.surf.enumeration.TicketStatus;
 import vn.theonestudio.surf.model.TicketModel;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -47,7 +44,8 @@ public class TicketRepository {
 
     public TicketResponse parseResponse(TicketModel ticketModel) {
         if(ticketModel == null) return null;
-        Optional<TicketModel> parentOpt = ticketDataSource.findById(ticketModel.getParentId());
+
+        Optional<TicketModel> parentOpt = ticketDataSource.findById(Objects.requireNonNullElse(ticketModel.getParentId(), UUID.randomUUID()));
 
         return TicketResponse.builder()
                 .uuid(ticketModel.getUuid())
@@ -169,9 +167,16 @@ public class TicketRepository {
         return parseResponse(ticket);
     }
 
+    public boolean deleteTicket(UUID ticketId) {
+        Optional<TicketModel> ticketOpt = ticketDataSource.findById(ticketId);
+        if(ticketOpt.isEmpty()) return false;
+        ticketDataSource.deleteById(ticketId);
+        return true;
+    }
+
     public List<TicketResponse> getAllTickets(UUID teamId) {
         return ticketDataSource.findAll()
-                .parallelStream()
+                .stream()
                 .filter((ticket) -> ticket.getTeamId().equals(teamId))
                 .map(this::parseResponse)
                 .toList();

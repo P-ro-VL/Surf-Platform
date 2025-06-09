@@ -1,11 +1,9 @@
-package vn.theonestudio.surf.model;
+package vn.theonestudio.surf.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.UUID;
 
@@ -13,19 +11,13 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document("users")
-public class UserModel {
-
-    @Id
-    UUID id;
+public class CreateUserRequest {
 
     String name;
 
     UUID teamId;
 
     String employeeId;
-
-    String password;
 
     String role;
 

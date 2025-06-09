@@ -96,4 +96,11 @@ public class ScheduleRepository {
         return parseResponse(schedule);
     }
 
+    public boolean deleteSchedule(UUID ticketId) {
+        Optional<ScheduleModel> scheduleOpt = scheduleDataSource.findById(ticketId);
+        if(scheduleOpt.isEmpty()) return false;
+        scheduleDataSource.deleteById(ticketId);
+        return true;
+    }
+
 }

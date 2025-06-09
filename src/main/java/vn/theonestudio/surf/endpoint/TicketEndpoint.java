@@ -36,8 +36,13 @@ public class TicketEndpoint {
     }
 
     @GetMapping(path = "/{teamId}")
-    public ResponseEntity<ApiResponse<List<TicketResponse>>> getAllTickets(@PathVariable UUID teamId, HttpServletRequest request) {
-        return apiExecutorService.execute(request, () -> new ApiCallResult<>(ticketRepository.getAllTickets(teamId)));
+    public ResponseEntity<ApiResponse<List<TicketResponse>>> getAllTicketsEndpoint(@PathVariable UUID teamId, HttpServletRequest httpServletRequest) {
+        return apiExecutorService.execute(httpServletRequest, () -> new ApiCallResult<>(ticketRepository.getAllTickets(teamId)));
+    }
+
+    @DeleteMapping(path = "/{ticketId}")
+    public ResponseEntity<ApiResponse<Boolean>> deleteTicketEndpoint(@PathVariable UUID ticketId, HttpServletRequest httpServletRequest) {
+        return apiExecutorService.execute(httpServletRequest, () -> new ApiCallResult<>(ticketRepository.deleteTicket(ticketId)));
     }
 
 }
