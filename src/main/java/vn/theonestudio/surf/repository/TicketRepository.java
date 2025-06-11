@@ -13,6 +13,7 @@ import vn.theonestudio.surf.model.TicketModel;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -47,6 +48,12 @@ public class TicketRepository {
 
         Optional<TicketModel> parentOpt = ticketDataSource.findById(Objects.requireNonNullElse(ticketModel.getParentId(), UUID.randomUUID()));
 
+        Map<String, List<UUID>> groupedRelations = Objects.requireNonNullElse(ticketModel.getRelations(), new ArrayList<TicketModel.TicketRelation>()).stream()
+                .collect(Collectors.groupingBy(
+                        TicketModel.TicketRelation::getRelationType,
+                        Collectors.mapping(TicketModel.TicketRelation::getTicketUuid, Collectors.toList())
+                ));
+
         return TicketResponse.builder()
                 .uuid(ticketModel.getUuid())
                 .ticketId(ticketModel.getTicketId())
@@ -77,11 +84,8 @@ public class TicketRepository {
                 .team(
                         teamRepository.parseResponse(ticketModel.getTeamId())
                 )
-                .subtasks(
-                        ticketModel.getSubtasks()
-                                .stream()
-                                .map(this::parseResponse)
-                                .toList()
+                .relations(
+                    groupedRelations
                 )
                 .build();
     }
@@ -108,7 +112,6 @@ public class TicketRepository {
                 .createdBy(UUID.fromString(rawCurrentUserId))
                 .updatedAt(Instant.now())
                 .teamId(request.getTeamId())
-                .subtasks(new ArrayList<>())
                 .build();
 
         ticketDataSource.save(ticket);
@@ -158,8 +161,17 @@ public class TicketRepository {
             ticket.setDueDate(request.getDueDate());
         }
 
-        if(request.getSubtasks() != null) {
-            ticket.setSubtasks(request.getSubtasks());
+        if(request.getRelations() != null) {
+            ticket.setRelations(
+                    request.getRelations().entrySet().stream()
+                            .flatMap(entry -> entry.getValue().stream()
+                                    .map(value -> Map.entry(value, entry.getKey())))
+                            .map((entry) -> TicketModel.TicketRelation.builder()
+                                    .ticketUuid(entry.getKey())
+                                    .relationType(entry.getValue())
+                                    .build())
+                            .toList()
+            );
         }
 
         ticketDataSource.save(ticket);
@@ -174,12 +186,16 @@ public class TicketRepository {
         return true;
     }
 
-    public List<TicketResponse> getAllTickets(UUID teamId) {
+    public List<TicketResponse> getAllTickets(UUID teamId, @Nullable String type) {
         return ticketDataSource.findAll()
                 .stream()
-                .filter((ticket) -> ticket.getTeamId().equals(teamId))
+                .filter((ticket) -> ticket.getTeamId().equals(teamId)
+                        && (type == null || Arrays.asList(type.toLowerCase().split(","))
+                            .contains(ticket.getType().toLowerCase())
+                ))
                 .map(this::parseResponse)
                 .toList();
     }
+
 
 }

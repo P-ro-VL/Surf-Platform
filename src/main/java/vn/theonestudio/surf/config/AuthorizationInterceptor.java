@@ -31,16 +31,16 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String path = (String)request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 
-        for(String publicEndpoint : PUBLIC_ENDPOINTS) {
-            if(path.contains(publicEndpoint)) return true;
-        }
-
-        if(path.split("/").length == 2) return true;
-
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication.getName().equalsIgnoreCase("anonymousUser")) {
-            throw new ApiCallException("Unauthorized", HttpStatus.UNAUTHORIZED);
-        }
+//        for(String publicEndpoint : PUBLIC_ENDPOINTS) {
+//            if(path.contains(publicEndpoint)) return true;
+//        }
+//
+//        if(path.split("/").length == 2) return true;
+//
+//        var authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if(authentication.getName().equalsIgnoreCase("anonymousUser")) {
+//            throw new ApiCallException("Unauthorized", HttpStatus.UNAUTHORIZED);
+//        }
 
         return true;
     }

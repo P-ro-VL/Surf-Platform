@@ -12,6 +12,7 @@ import vn.theonestudio.surf.dto.request.UpdateFixVersionRequest;
 import vn.theonestudio.surf.dto.response.FixVersionResponse;
 import vn.theonestudio.surf.repository.FixVersionRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,5 +32,10 @@ public class FixVersionEndpoint {
     @PutMapping(path = "/{fixVersionId}")
     public ResponseEntity<ApiResponse<FixVersionResponse>> updateFixVersionEndpoint(@PathVariable UUID fixVersionId, @RequestBody UpdateFixVersionRequest request, HttpServletRequest httpServletRequest) {
         return apiExecutorService.execute(httpServletRequest, () -> new ApiCallResult<>(fixVersionRepository.updateFixVersion(fixVersionId, request)));
+    }
+
+    @GetMapping(path = "/{teamId}")
+    public ResponseEntity<ApiResponse<List<FixVersionResponse>>> getAllFixVersionsOfTeamEndpoint(@PathVariable UUID teamId, HttpServletRequest httpServletRequest) {
+        return apiExecutorService.execute(httpServletRequest, () -> new ApiCallResult<>(fixVersionRepository.getAllFixVersions(teamId)));
     }
 }

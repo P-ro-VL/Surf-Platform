@@ -53,6 +53,13 @@ public class TicketModel {
 
     UUID teamId;
 
-    List<UUID> subtasks;
+    List<TicketRelation> relations;
 
+    @Data
+    @Builder
+    public static class TicketRelation {
+        String relationType;
+
+        UUID ticketUuid;
+    }
 }

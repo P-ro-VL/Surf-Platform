@@ -28,4 +28,6 @@ public class CreateFixVersionRequest {
 
     List<UUID> approverIds;
 
+    UUID teamId;
+
 }

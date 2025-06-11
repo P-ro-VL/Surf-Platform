@@ -30,4 +30,6 @@ public class FixVersionResponse {
 
     List<ApproverResponse> approvers;
 
+    TeamResponse team;
+
 }

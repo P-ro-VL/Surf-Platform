@@ -8,6 +8,7 @@ import vn.theonestudio.surf.model.TicketModel;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -50,7 +51,7 @@ public class TicketResponse {
 
     TeamResponse team;
 
-    List<TicketResponse> subtasks;
+    Map<String, List<UUID>> relations;
 
 }
 

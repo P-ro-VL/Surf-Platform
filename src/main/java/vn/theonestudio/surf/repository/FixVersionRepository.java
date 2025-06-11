@@ -10,6 +10,7 @@ import vn.theonestudio.surf.dto.response.FixVersionResponse;
 import vn.theonestudio.surf.enumeration.ApprovalStatus;
 import vn.theonestudio.surf.model.FixVersionModel;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ public class FixVersionRepository {
     FixVersionDataSource fixVersionDataSource;
 
     UserRepository userRepository;
+    TeamRepository teamRepository;
 
     // Utility methods
     public FixVersionResponse parseResponse(UUID fixVersionId) {
@@ -37,6 +39,7 @@ public class FixVersionRepository {
                 .startDate(fixVersionModel.getStartDate())
                 .goal(fixVersionModel.getGoal())
                 .status(fixVersionModel.getStatus())
+                .team(teamRepository.parseResponse(fixVersionModel.getTeamId()))
                 .approvers(
                         fixVersionModel.getApprovers()
                                 .stream()
@@ -58,6 +61,7 @@ public class FixVersionRepository {
                 .startDate(request.getStartDate())
                 .goal(request.getGoal())
                 .status(request.getStatus())
+                .teamId(request.getTeamId())
                 .approvers(
                         request.getApproverIds()
                                 .stream()
@@ -115,6 +119,14 @@ public class FixVersionRepository {
         fixVersionDataSource.save(fixVersion);
 
         return parseResponse(fixVersion);
+    }
+
+    public List<FixVersionResponse> getAllFixVersions(UUID teamId) {
+        return fixVersionDataSource.findAll()
+                .stream()
+                .filter((fixVersion) -> fixVersion.getTeamId().equals(teamId))
+                .map(this::parseResponse)
+                .toList();
     }
 
 }

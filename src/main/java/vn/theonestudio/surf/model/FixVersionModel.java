@@ -33,6 +33,8 @@ public class FixVersionModel {
 
     List<Approver> approvers;
 
+    UUID teamId;
+
     @Data
     @Builder
     public static class Approver {
